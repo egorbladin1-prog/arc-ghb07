@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: banny-shop
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    healthCheckPath: /api/health
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_ID
+        sync: false
+      - key: CARD_NUMBER
+        value: "2204120135107775"
+      - key: MINIAPP_HOST
+        value: "0.0.0.0"
+      - key: MINIAPP_PORT
+        value: "10000"
+      - key: MINIAPP_URL
+        sync: false

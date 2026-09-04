@@ -205,6 +205,7 @@ COMPILER_PHOTO = os.path.join(PHOTOS_DIR, "compiler.png")
 PROJECTS_PHOTO = os.path.join(PHOTOS_DIR, "my_projects.png")
 
 SHOP_CATEGORIES = {
+    # Постоянный товар. Его нельзя удалить из админки.
     "banny_premium_v3": {
         "title": "🔥 BANNY PREMIUM",
         "price": 0,
@@ -220,13 +221,31 @@ SHOP_CATEGORIES = {
         ),
         "callback": "show_banny_product",
     },
-    # Добавляй сюда следующие товары вручную — они НЕ создаются из админки.
-    # "next_product": {
-    #     "title": "🆕 НОВЫЙ ТОВАР",
-    #     "price": 999,
-    #     "description": "...",
-    #     "callback": "show_next_product",
-    # },
+    # Готовая структура магазина: админ может сразу добавлять товары.
+    "game_mods": {
+        "title": "🎮 Игровые моды",
+        "description": "Моды, сборки и игровые решения.",
+        "callback": "category_game_mods",
+        "products": [],
+    },
+    "software": {
+        "title": "💻 Софт",
+        "description": "Полезный софт и инструменты для разработчиков.",
+        "callback": "category_software",
+        "products": [],
+    },
+    "scripts": {
+        "title": "🧩 Скрипты",
+        "description": "Готовые скрипты и автоматизация.",
+        "callback": "category_scripts",
+        "products": [],
+    },
+    "projects": {
+        "title": "📦 Проекты",
+        "description": "Готовые проекты, исходники и шаблоны.",
+        "callback": "category_projects",
+        "products": [],
+    },
 }
 
 # Initialize/load saved data only after SHOP_CATEGORIES exists.
