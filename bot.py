@@ -1645,6 +1645,56 @@ class MiniAppHandler(SimpleHTTPRequestHandler):
                 self._send_json({"ok": False, "error": "user_not_found"}, 404); return
             mark_chat_read(uid); save_user_data()
             self._send_json({"ok": True, "unread": 0}); return
+        if parsed.path in ("/api/admin/category", "/api/admin/product", "/api/admin/promo"):
+            admin_user = self._admin_auth()
+            if not admin_user:
+                self._send_json({"ok": False, "error": "forbidden"}, 403)
+                return
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                payload = json.loads(self.rfile.read(length).decode("utf-8") or "{}")
+            except Exception:
+                self._send_json({"ok": False, "error": "bad_json"}, 400)
+                return
+            if parsed.path == "/api/admin/category":
+                title = str(payload.get("title", "")).strip()[:60]
+                description = str(payload.get("description", "")).strip()[:1000]
+                if not title:
+                    self._send_json({"ok": False, "error": "title_required"}, 400); return
+                slug = re.sub(r"[^a-z0-9_]+", "_", title.lower()).strip("_") or "category_" + str(int(time.time()))
+                base_slug, n = slug, 2
+                while slug in SHOP_CATEGORIES:
+                    slug = base_slug + "_" + str(n); n += 1
+                SHOP_CATEGORIES[slug] = {"title": title, "price": 0, "description": description, "callback": "category_" + slug, "products": []}
+                save_user_data()
+                self._send_json({"ok": True, "key": slug}); return
+            if parsed.path == "/api/admin/product":
+                category_key = str(payload.get("category_key", ""))
+                title = str(payload.get("title", "")).strip()[:100]
+                description = str(payload.get("description", "")).strip()[:4000]
+                functional = str(payload.get("functional", "")).strip()[:8000]
+                photo = str(payload.get("photo", "")).strip()[:2000]
+                try: price = float(payload.get("price", 0))
+                except Exception: price = 0
+                if not category_key or category_key not in SHOP_CATEGORIES or not title or price <= 0 or not description or not functional:
+                    self._send_json({"ok": False, "error": "invalid_product"}, 400); return
+                if category_key == "banny_premium_v3":
+                    self._send_json({"ok": False, "error": "premium_locked"}, 400); return
+                if price.is_integer(): price = int(price)
+                product_key = make_product_key(category_key, title)
+                SHOP_CATEGORIES[category_key].setdefault("products", []).append({"key": product_key, "title": title, "price": price, "description": description, "functional": functional, "photo": photo or SHOP_CATEGORIES[category_key].get("photo", SHOP_PHOTO)})
+                save_user_data()
+                self._send_json({"ok": True, "key": product_key}); return
+            if parsed.path == "/api/admin/promo":
+                code = str(payload.get("code", "")).strip().upper()[:50]
+                try: discount = int(payload.get("discount", 0))
+                except Exception: discount = 0
+                if not code or discount < 1 or discount > 100:
+                    self._send_json({"ok": False, "error": "invalid_promo"}, 400); return
+                promocodes[code] = discount
+                save_user_data()
+                self._send_json({"ok": True, "discount": discount}); return
+            self._send_json({"ok": False, "error": "not_found"}, 404); return
         if parsed.path not in ("/api/buy", "/api/promo"):
             self._send_json({"ok": False, "error": "not_found"}, 404)
             return
