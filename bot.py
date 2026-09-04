@@ -18,7 +18,7 @@ from urllib.parse import urlparse, unquote
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, ReactionTypeEmoji
 
 TOKEN = os.getenv("BOT_TOKEN", "")
-ADMIN_ID = int(os.getenv("ADMIN_ID", "8233341112"))
+ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 ADMIN_USERNAME = "@dev_tokio"
 CARD_NUMBER = os.getenv("CARD_NUMBER", "2204120135107775")
 PRICE = 699
