@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+bunny_data.json
+*.zip
+photos/
+.env
